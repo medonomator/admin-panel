@@ -1,56 +1,61 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer } from "react";
 import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
-import LoginPage from "./Pages/LoginPage/LoginPage";
-import MainPage from "./Pages/MainPage/MainPage";
+import LoginPage from "./pages/LoginPage";
+import MainPage from "./pages/MainPage";
 import { Pane, Spinner } from "evergreen-ui";
 import { checkAuth } from "./helpers/checkAuth";
+import { initialState, loginReducer, Context } from "./reducer";
 
 const App = () => {
-  const [stateAuth, checkingAuth] = useState("pending");
+  const [state, dispatch] = useReducer(loginReducer, initialState);
+
   useEffect(() => {
     const firstRender = async () => {
-      const auth = await checkAuth();
-      checkingAuth(auth);
+      const logginState = await checkAuth();
+      // dispatch({ type: logginState, payload: logginState });
     };
     firstRender();
   }, []);
-  return (
-    <Router>
-      <Route
-        render={() => {
-          switch (stateAuth) {
-            case "pending":
-              return (
-                <Pane
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  height={400}
-                >
-                  <Spinner />
-                </Pane>
-              );
-            case "success":
-              return (
-                <>
-                  <Route path="/" component={MainPage} />
-                  <Redirect to={{ pathname: "/" }} />;
-                </>
-              );
-            case "login":
-              return (
-                <>
-                  <Route path="/login" component={LoginPage} />
-                  <Redirect to={{ pathname: "/login" }} />
-                </>
-              );
 
-            default:
-              break;
-          }
-        }}
-      />
-    </Router>
+  return (
+    <Context.Provider value={{ dispatch }}>
+      <Router>
+        <Route
+          render={() => {
+            switch (state.logginState) {
+              case "pending":
+                return (
+                  <Pane
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    height={400}
+                  >
+                    <Spinner />
+                  </Pane>
+                );
+              case "success":
+                return (
+                  <>
+                    <Route path="/admin" component={MainPage} />
+                    <Redirect to={{ pathname: "/admin" }} />;
+                  </>
+                );
+              case "login":
+                return (
+                  <>
+                    <Route path="/admin/login" component={LoginPage} />
+                    <Redirect to={{ pathname: "/admin/login" }} />
+                  </>
+                );
+
+              default:
+                break;
+            }
+          }}
+        />
+      </Router>
+    </Context.Provider>
   );
 };
 

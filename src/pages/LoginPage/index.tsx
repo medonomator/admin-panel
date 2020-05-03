@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import { Button, Pane, TextInput } from "evergreen-ui";
 import styles from "./style.module.sass";
+import { Context } from "../../reducer";
+import { loginAction } from "../../actions";
 
 const LoginPage = () => {
+  const [login, loginChange] = useState("");
+  const [password, passwordChange] = useState("");
+  const { dispatch } = useContext(Context);
+
   return (
     <div className={styles.main}>
       <h1>LoginPage</h1>
@@ -22,6 +28,10 @@ const LoginPage = () => {
           placeholder="Login"
           description="login"
           required
+          value={login}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            loginChange(e.target.value)
+          }
         />
         <TextInput
           className={styles.input}
@@ -29,10 +39,14 @@ const LoginPage = () => {
           placeholder="password"
           description="login"
           required
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            passwordChange(e.target.value)
+          }
         />
         <Button
           className={styles.button}
-          onClick={() => alert(123)}
+          disabled={!login && !password}
+          onClick={() => loginAction({ login, password }, dispatch)}
           appearance="primary"
         >
           Login
